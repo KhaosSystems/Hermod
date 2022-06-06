@@ -127,7 +127,6 @@ namespace Hermod
 		std::atomic<std::underlying_type_t<ELevel>> m_FlushLevel{ ELevel::Off };
 	};
 
-	// Sinks
 	export class ConsoleSink : public Sink
 	{
 	public:
@@ -244,5 +243,3 @@ namespace Hermod
 		std::filesystem::path m_Filepath;
 	};
 }
-
-// TODO: Look at memory buffer sizes
