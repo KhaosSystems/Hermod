@@ -5,10 +5,13 @@ module;
 #include <atomic>
 #include <memory>
 #include <array>
-
-#include <fmt/format.h>
+#include <mutex>
+#include <filesystem>
+#include <assert.h>
 
 #include <Windows.h>
+
+#include <fmt/format.h>
 
 export module Hermod;
 
@@ -129,26 +132,28 @@ namespace Hermod
 	{
 	public:
 		ConsoleSink()
+			: m_Mutex(std::mutex())
 		{
 			m_ConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
-			m_Colors[ELevel::Trace] = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;     // white
-			m_Colors[ELevel::Debug] = FOREGROUND_GREEN | FOREGROUND_BLUE;                      // cyan
-			m_Colors[ELevel::Info] = FOREGROUND_GREEN;                                         // green
-			m_Colors[ELevel::Warning] = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY; // intense yellow
-			m_Colors[ELevel::Error] = FOREGROUND_RED | FOREGROUND_INTENSITY;                     // intense red
-			m_Colors[ELevel::Critical] = BACKGROUND_RED | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY; // intense white on red background
+			m_Colors[ELevel::Trace] = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+			m_Colors[ELevel::Debug] = FOREGROUND_GREEN | FOREGROUND_BLUE;
+			m_Colors[ELevel::Info] = FOREGROUND_GREEN;
+			m_Colors[ELevel::Warning] = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+			m_Colors[ELevel::Error] = FOREGROUND_RED | FOREGROUND_INTENSITY;
+			m_Colors[ELevel::Critical] = BACKGROUND_RED | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
 			m_Colors[ELevel::Off] = 0;
 		}
 
 		virtual void Log(const Message& message) override
 		{
+			std::lock_guard<std::mutex> lock(m_Mutex);
+
 			CONSOLE_SCREEN_BUFFER_INFO originalBufferInfo;
 			if (GetConsoleScreenBufferInfo(static_cast<HANDLE>(m_ConsoleHandle), &originalBufferInfo))
 			{
 				auto newAttribs = static_cast<WORD>(m_Colors[message.Level]) | (originalBufferInfo.wAttributes & 0xfff0);
-				auto ignored = SetConsoleTextAttribute(static_cast<HANDLE>(m_ConsoleHandle), static_cast<WORD>(m_Colors[message.Level])); // This breaks stuff?
-				(void)(ignored); // What's up with this?
+				SetConsoleTextAttribute(static_cast<HANDLE>(m_ConsoleHandle), static_cast<WORD>(m_Colors[message.Level]));
 			}
 			
 			fmt::basic_memory_buffer<char, 250> buffer;
@@ -161,9 +166,83 @@ namespace Hermod
 		virtual void Flush() override {}
 
 	protected:
+		std::mutex m_Mutex;
 		//std::unique_ptr<Formatter> m_Formatter;
 		HANDLE m_ConsoleHandle;
 		std::array<std::uint16_t, ELevel::Count> m_Colors;
+	};
 
+	export class FileSink : public Sink
+	{
+	public:
+		FileSink(const std::string& filename)
+		{
+			open(filename);
+		}
+
+		~FileSink()
+		{
+			close();
+		}
+
+		virtual void Log(const Message& message) override
+		{
+			fmt::basic_memory_buffer<char, 250> buffer;
+			fmt::format_to(std::back_inserter(buffer), "[TIME] {}\n", message.Payload);
+			write(buffer);
+		}
+		
+		virtual void Flush() override
+		{
+			flush();
+		}
+
+	private:
+		inline void open(const std::string& filename)
+		{
+			close();
+
+			m_Filepath = std::filesystem::path(filename);
+
+			// Create containing folder if doesn't exists already.
+			if (!std::filesystem::exists(m_Filepath.parent_path()))
+			{
+				std::filesystem::create_directory(m_Filepath.parent_path());
+			}
+
+			m_File = std::fopen(m_Filepath.string().c_str(), "ab");
+		}
+
+		inline void flush()
+		{
+			if (std::fflush(m_File) != 0)
+			{
+				assert(false);
+				// "Failed flush to file " + os::filename_to_str(filename_), errno);
+			}
+		}
+
+		inline void close()
+		{
+			if (m_File != nullptr)
+			{
+				std::fclose(m_File);
+			}
+		}
+
+		inline void write(const fmt::basic_memory_buffer<char, 250>& buffer)
+		{
+			if (std::fwrite(buffer.data(), 1, buffer.size(), m_File) != buffer.size())
+			{
+				assert(false);
+				// "Failed writing to file " + os::filename_to_str(filename_), errno);
+			}
+		}
+
+	private:
+		std::FILE* m_File{ nullptr };
+		std::filesystem::path m_Filepath;
 	};
 }
+
+// TODO: Look at memory buffer sizes
