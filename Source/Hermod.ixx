@@ -81,7 +81,7 @@ namespace Hermod
 		}
 
 		template<ELevel Level, typename... Args>
-		void Log(const char* format, const Args&... args)
+		void Log(const char* format, Args&&... args)
 		{
 			LogInternal(Level, format, std::forward<Args>(args)...);
 		}
@@ -204,7 +204,7 @@ namespace Hermod
 			m_Filepath = std::filesystem::path(filename);
 
 			// Create containing folder if doesn't exists already.
-			if (!std::filesystem::exists(m_Filepath.parent_path()))
+			if (m_Filepath.has_parent_path() && !std::filesystem::exists(m_Filepath.parent_path()))
 			{
 				std::filesystem::create_directory(m_Filepath.parent_path());
 			}

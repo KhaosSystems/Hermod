@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 	logger.Log<Hermod::ELevel::Trace>("Trace");
 	logger.Log<Hermod::ELevel::Error>("Error");
 	logger.Log<Hermod::ELevel::Error>("Error");
-	logger.Log<Hermod::ELevel::Error>("Error");
+	logger.Log<Hermod::ELevel::Error>("arg: {}", 1);
 
 	return 0;
 }
