@@ -8,15 +8,35 @@ module;
 #include <mutex>
 #include <filesystem>
 #include <assert.h>
+#include <chrono>
 
 #include <Windows.h>
 
 #include <fmt/format.h>
+#include <fmt/chrono.h>
 
 export module Hermod;
 
 namespace Hermod
 {
+	namespace OS
+	{
+		std::chrono::system_clock::time_point now() noexcept
+		{
+			/*
+	#if defined __linux__ && defined SPDLOG_CLOCK_COARSE
+			timespec ts;
+			::clock_gettime(CLOCK_REALTIME_COARSE, &ts);
+			return std::chrono::time_point<std::chrono::system_clock, typename std::chrono::system_clock::duration>(std::chrono::duration_cast<typename std::chrono::system_clock::duration>(std::chrono::seconds(ts.tv_sec) + std::chrono::nanoseconds(ts.tv_nsec)));
+	#else
+			return std::chrono::system_clock::now();
+	#endif
+	*/
+
+			return std::chrono::system_clock::now();
+		}
+	}
+
 	export enum ELevel : uint8_t
 	{
 		Trace,
@@ -32,10 +52,11 @@ namespace Hermod
 	export struct Message
 	{
 		Message(ELevel level, fmt::basic_string_view<char> message)
-			: Level(level), Payload(message)
+			: time(OS::now()), Level(level), Payload(message)
 		{
 		}
 
+		std::chrono::system_clock::time_point time;
 		ELevel Level{ ELevel::Off };
 		fmt::basic_string_view<char> Payload;
 	};
@@ -94,7 +115,7 @@ namespace Hermod
 		void LogInternal(ELevel level, fmt::basic_string_view<char> format, Args &&... args)
 		{
 			fmt::basic_memory_buffer<char, 250> buffer;
-            fmt::detail::vformat_to(buffer, format, fmt::make_format_args(std::forward<Args>(args)...));
+			fmt::detail::vformat_to(buffer, format, fmt::make_format_args(std::forward<Args>(args)...));
 
 			Message message(level, fmt::basic_string_view<char>(buffer.data(), buffer.size()));
 
@@ -154,9 +175,9 @@ namespace Hermod
 				auto newAttribs = static_cast<WORD>(m_Colors[message.Level]) | (originalBufferInfo.wAttributes & 0xfff0);
 				SetConsoleTextAttribute(static_cast<HANDLE>(m_ConsoleHandle), static_cast<WORD>(m_Colors[message.Level]));
 			}
-			
+
 			fmt::basic_memory_buffer<char, 250> buffer;
-			fmt::format_to(std::back_inserter(buffer), "[TIME] {}\n", message.Payload);
+			fmt::format_to(std::back_inserter(buffer), "[{}] {}\n", message.time.time_since_epoch(), message.Payload);
 			WriteConsoleA(static_cast<HANDLE>(m_ConsoleHandle), buffer.data(), static_cast<DWORD>(buffer.size()), nullptr, nullptr);
 
 			SetConsoleTextAttribute(static_cast<HANDLE>(m_ConsoleHandle), originalBufferInfo.wAttributes);
@@ -186,11 +207,12 @@ namespace Hermod
 
 		virtual void Log(const Message& message) override
 		{
+			
 			fmt::basic_memory_buffer<char, 250> buffer;
-			fmt::format_to(std::back_inserter(buffer), "[TIME] {}\n", message.Payload);
+			fmt::format_to(std::back_inserter(buffer), "[{}] {}\n", message.time.time_since_epoch(), message.Payload);
 			write(buffer);
 		}
-		
+
 		virtual void Flush() override
 		{
 			flush();
