@@ -9,7 +9,9 @@ file(GLOB_RECURSE HERMOD_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp")
 file(GLOB_RECURSE HERMOD_MODULES "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.ixx")
 add_library(Hermod STATIC "${HERMOD_HEADERS}" "${HERMOD_SOURCES}" "${HERMOD_MODULES}")
 
-set_target_properties(Hermod PROPERTIES CXX_STANDARD 20)
+set_target_properties(Hermod PROPERTIES
+    CXX_STANDARD 20
+    LINKER_LANGUAGE CXX)
 
 target_link_libraries(Hermod PUBLIC fmt::fmt-header-only)
 

@@ -1,4 +1,4 @@
-module;
+#pragma once
 
 #include <initializer_list>
 #include <vector>
@@ -10,34 +10,20 @@ module;
 #include <assert.h>
 #include <chrono>
 
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
 #include <fmt/format.h>
 #include <fmt/chrono.h>
 
-export module Hermod;
-
 namespace Hermod
 {
 	namespace OS
 	{
-		std::chrono::system_clock::time_point now() noexcept
-		{
-			/*
-	#if defined __linux__ && defined SPDLOG_CLOCK_COARSE
-			timespec ts;
-			::clock_gettime(CLOCK_REALTIME_COARSE, &ts);
-			return std::chrono::time_point<std::chrono::system_clock, typename std::chrono::system_clock::duration>(std::chrono::duration_cast<typename std::chrono::system_clock::duration>(std::chrono::seconds(ts.tv_sec) + std::chrono::nanoseconds(ts.tv_nsec)));
-	#else
-			return std::chrono::system_clock::now();
-	#endif
-	*/
-
-			return std::chrono::system_clock::now();
-		}
+		std::chrono::system_clock::time_point now();
 	}
 
-	export enum ELevel : uint8_t
+	enum ELevel : uint8_t
 	{
 		Trace,
 		Debug,
@@ -49,7 +35,7 @@ namespace Hermod
 		Count
 	};
 
-	export struct Message
+	struct Message
 	{
 		Message(ELevel level, fmt::basic_string_view<char> message)
 			: time(OS::now()), Level(level), Payload(message)
@@ -61,7 +47,7 @@ namespace Hermod
 		fmt::basic_string_view<char> Payload;
 	};
 
-	export class Sink
+	class Sink
 	{
 	public:
 		virtual ~Sink() = default;
@@ -88,7 +74,7 @@ namespace Hermod
 		std::atomic<std::underlying_type_t<ELevel>> m_Level{ static_cast<std::underlying_type_t<ELevel>>(ELevel::Trace) };
 	};
 
-	export class Logger
+	class Logger
 	{
 	public:
 		Logger()
@@ -136,7 +122,7 @@ namespace Hermod
 			}
 		}
 
-		inline bool ShouldFlush(const Message& message)
+		bool ShouldFlush(const Message& message)
 		{
 			auto flushLevel = m_FlushLevel.load(std::memory_order_relaxed);
 			return (message.Level >= flushLevel) && (message.Level != ELevel::Off);
@@ -148,7 +134,7 @@ namespace Hermod
 		std::atomic<std::underlying_type_t<ELevel>> m_FlushLevel{ ELevel::Off };
 	};
 
-	export class ConsoleSink : public Sink
+	class ConsoleSink : public Sink
 	{
 	public:
 		ConsoleSink()
@@ -192,7 +178,7 @@ namespace Hermod
 		std::array<std::uint16_t, ELevel::Count> m_Colors;
 	};
 
-	export class FileSink : public Sink
+	class FileSink : public Sink
 	{
 	public:
 		FileSink(const std::string& filename)
@@ -219,7 +205,7 @@ namespace Hermod
 		}
 
 	private:
-		inline void open(const std::string& filename)
+		void open(const std::string& filename)
 		{
 			close();
 
@@ -234,7 +220,7 @@ namespace Hermod
 			m_File = std::fopen(m_Filepath.string().c_str(), "ab");
 		}
 
-		inline void flush()
+		void flush()
 		{
 			if (std::fflush(m_File) != 0)
 			{
@@ -243,7 +229,7 @@ namespace Hermod
 			}
 		}
 
-		inline void close()
+		void close()
 		{
 			if (m_File != nullptr)
 			{
@@ -251,7 +237,7 @@ namespace Hermod
 			}
 		}
 
-		inline void write(const fmt::basic_memory_buffer<char, 250>& buffer)
+		void write(const fmt::basic_memory_buffer<char, 250>& buffer)
 		{
 			if (std::fwrite(buffer.data(), 1, buffer.size(), m_File) != buffer.size())
 			{
