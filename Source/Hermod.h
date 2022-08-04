@@ -1,5 +1,11 @@
 #pragma once
 
+#ifdef Hermod_EXPORTS
+#define HERMOD_API __declspec(dllexport) 
+#else
+#define HERMOD_API __declspec(dllimport)  
+#endif
+
 #include <initializer_list>
 #include <vector>
 #include <atomic>
@@ -20,10 +26,10 @@ namespace Hermod
 {
 	namespace OS
 	{
-		std::chrono::system_clock::time_point now();
+		std::chrono::system_clock::time_point HERMOD_API now();
 	}
 
-	enum ELevel : uint8_t
+	enum HERMOD_API ELevel : uint8_t
 	{
 		Trace,
 		Debug,
@@ -35,7 +41,7 @@ namespace Hermod
 		Count
 	};
 
-	struct Message
+	struct HERMOD_API Message
 	{
 		Message(ELevel level, fmt::basic_string_view<char> message)
 			: time(OS::now()), Level(level), Payload(message)
@@ -47,7 +53,7 @@ namespace Hermod
 		fmt::basic_string_view<char> Payload;
 	};
 
-	class Sink
+	class HERMOD_API Sink
 	{
 	public:
 		virtual ~Sink() = default;
@@ -74,7 +80,7 @@ namespace Hermod
 		std::atomic<std::underlying_type_t<ELevel>> m_Level{ static_cast<std::underlying_type_t<ELevel>>(ELevel::Trace) };
 	};
 
-	class Logger
+	class HERMOD_API Logger
 	{
 	public:
 		Logger()
@@ -134,7 +140,7 @@ namespace Hermod
 		std::atomic<std::underlying_type_t<ELevel>> m_FlushLevel{ ELevel::Off };
 	};
 
-	class ConsoleSink : public Sink
+	class HERMOD_API ConsoleSink : public Sink
 	{
 	public:
 		ConsoleSink()
@@ -178,7 +184,7 @@ namespace Hermod
 		std::array<std::uint16_t, ELevel::Count> m_Colors;
 	};
 
-	class FileSink : public Sink
+	class HERMOD_API FileSink : public Sink
 	{
 	public:
 		FileSink(const std::string& filename)

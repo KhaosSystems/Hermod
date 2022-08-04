@@ -1549,13 +1549,13 @@ OutputIt format_duration_unit(OutputIt out) {
 
 class get_locale {
  private:
-  union {
+  //union {
     std::locale locale_;
-  };
+  //};
   bool has_locale_ = false;
 
  public:
-  get_locale(bool localized, locale_ref loc) : has_locale_(localized) {
+  get_locale(bool localized, locale_ref loc): has_locale_(localized) {
     if (localized)
       ::new (&locale_) std::locale(loc.template get<std::locale>());
   }
