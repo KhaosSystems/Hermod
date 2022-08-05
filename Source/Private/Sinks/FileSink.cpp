@@ -33,7 +33,7 @@ namespace Hermod
 
     void FileSink::Open(const std::string &filename)
     {
-        close();
+        Close();
 
         m_Filepath = std::filesystem::path(filename);
 
