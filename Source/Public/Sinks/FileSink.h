@@ -18,9 +18,9 @@ namespace Hermod
 		virtual void Flush() override;
 
 	private:
-		void Open(const std::string& filename)
-		void Close()
-		void Write(const fmt::basic_memory_buffer<char, 250>& buffer)
+		void Open(const std::string& filename);
+		void Close();
+		void Write(const fmt::basic_memory_buffer<char, 250>& buffer);
 
 	private:
 		std::FILE* m_File{ nullptr };

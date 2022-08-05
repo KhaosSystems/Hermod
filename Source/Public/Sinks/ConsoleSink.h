@@ -4,6 +4,8 @@
 #include "Core/Sink.h"
 
 #include <mutex>
+#include <cstdint>
+#include <array>
 
 namespace Hermod
 {
@@ -18,7 +20,7 @@ namespace Hermod
 	protected:
 		std::mutex m_Mutex;
 		//std::unique_ptr<Formatter> m_Formatter;
-		HANDLE m_ConsoleHandle;
+		void* m_ConsoleHandle;
 		std::array<std::uint16_t, ELevel::Count> m_Colors;
 	};
 }
