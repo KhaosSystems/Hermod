@@ -1,15 +1,17 @@
 #include "Sinks/FileSink.h"
 
+#include <cassert>
+
 namespace Hermod
 {
     FileSink::FileSink(const std::string &filename)
     {
-        open(filename);
+        Open(filename);
     }
 
     FileSink::~FileSink()
     {
-        close();
+        Close();
     }
 
     void FileSink::Log(const Message &message)
@@ -17,7 +19,7 @@ namespace Hermod
 
         fmt::basic_memory_buffer<char, 250> buffer;
         fmt::format_to(std::back_inserter(buffer), "[{}] {}\n", message.time.time_since_epoch(), message.Payload);
-        write(buffer);
+        Write(buffer);
     }
 
     void FileSink::Flush()
