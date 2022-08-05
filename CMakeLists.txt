@@ -15,6 +15,19 @@ set_target_properties(Hermod PROPERTIES
 
 target_link_libraries(Hermod PUBLIC fmt::fmt-header-only)
 
-target_include_directories(Hermod PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Source")
+target_include_directories(Hermod PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Source/Public")
+target_include_directories(Hermod PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source/Private")
 
-#add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/Tests")
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    "cmake/HermodConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/HermodConfig.cmake"
+    INSTALL_DESTINATION lib/Foo/cmake
+)
+
+write_basic_package_version_file(
+	"HermodConfigVersion.cmake"
+	VERSION 1.0.0
+	COMPATIBILITY SameMajorVersion
+)
