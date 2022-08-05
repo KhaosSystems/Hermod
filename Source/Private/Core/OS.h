@@ -1,3 +1,4 @@
+#pragma once
 
 namespace Hermod
 {
@@ -15,7 +16,5 @@ namespace Hermod
 
 			return std::chrono::system_clock::now();
 		}
-	}
-
-	
+	}	
 }
