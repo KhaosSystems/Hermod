@@ -1,6 +1,5 @@
-#include "Core/Message.h"
-
-#include "Core/OS.h"
+#include "Hermod/Core/Message.h"
+#include "Hermod/Core/OS.h"
 
 namespace Hermod
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/VisibilityControl.h"
-#include "Core/Level.h"
+#include "Hermod/Core/VisibilityControl.h"
+#include "Hermod/Core/Level.h"
 
 #include <fmt/format.h>
 #include <fmt/chrono.h>

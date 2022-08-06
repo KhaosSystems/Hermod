@@ -1,4 +1,4 @@
-#include "Sinks/ConsoleSink.h"
+#include "Hermod/Sinks/ConsoleSink.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Core/VisibilityControl.h"
-#include "Core/Level.h"
-#include "Core/Message.h"
+#include "Hermod/Core/VisibilityControl.h"
+#include "Hermod/Core/Level.h"
+#include "Hermod/Core/Message.h"
 
 #include <atomic>
 

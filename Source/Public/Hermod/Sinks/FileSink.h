@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/VisibilityControl.h"
-#include "Core/Sink.h"
+#include "Hermod/Core/VisibilityControl.h"
+#include "Hermod/Core/Sink.h"
 
 #include <cstdio>
 #include <filesystem>

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/VisibilityControl.h"
-#include "Core/Sink.h"
-#include "Core/Level.h"
-#include "Core/Message.h"
+#include "Hermod/Core/VisibilityControl.h"
+#include "Hermod/Core/Sink.h"
+#include "Hermod/Core/Level.h"
+#include "Hermod/Core/Message.h"
 
 #include <initializer_list>
 #include <memory>
@@ -13,12 +13,13 @@
 #include <fmt/format.h>
 #include <fmt/chrono.h>
 
+#include <iostream>
+
 namespace Hermod
 {
-    class HERMOD_API Logger
+	class HERMOD_API Logger
 	{
 	public:
-		Logger(); // TODO: Should this be removed?
 		Logger(std::initializer_list<std::shared_ptr<Sink>> sinks);
 
 		template<ELevel Level, typename... Args>
@@ -29,6 +30,9 @@ namespace Hermod
 
 		void SetLevel(ELevel level);
 		ELevel GetLevel();
+
+	public:
+		ELevel level;
 
 	private:
 		template<typename... Args>
@@ -60,7 +64,8 @@ namespace Hermod
 
 	protected:
 		std::vector<std::shared_ptr<Sink>> m_Sinks;
-		std::atomic<std::underlying_type_t<ELevel>> m_Level{ ELevel::Info };
-		std::atomic<std::underlying_type_t<ELevel>> m_FlushLevel{ ELevel::Off };
+		std::atomic<std::underlying_type_t<ELevel>> m_Level = ELevel::Info;
+		std::atomic<std::underlying_type_t<ELevel>> m_FlushLevel = ELevel::Off;
 	};
+
 }

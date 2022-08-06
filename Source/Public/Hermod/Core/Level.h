@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/VisibilityControl.h"
+#include "Hermod/Core/VisibilityControl.h"
 
 #include <stdint.h>
 
