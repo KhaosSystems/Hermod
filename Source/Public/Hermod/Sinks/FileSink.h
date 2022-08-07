@@ -23,7 +23,7 @@ namespace Hermod
 		void Write(const fmt::basic_memory_buffer<char, 250>& buffer);
 
 	private:
-		std::FILE* m_File{ nullptr };
-		std::filesystem::path m_Filepath;
+		std::FILE* file{ nullptr };
+		std::filesystem::path filepath;
 	};
 }

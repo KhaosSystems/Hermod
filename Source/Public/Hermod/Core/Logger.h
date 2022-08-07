@@ -45,7 +45,7 @@ namespace Hermod
 
 			for (auto& sink : m_Sinks)
 			{
-				if (sink->ShouldLog(message.Level))
+				if (sink->ShouldLog(message.level))
 				{
 					sink->Log(message);
 				}

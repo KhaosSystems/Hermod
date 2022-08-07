@@ -13,7 +13,7 @@ namespace Hermod
 		Message(ELevel level, fmt::basic_string_view<char> message);
 
 		std::chrono::system_clock::time_point time;
-		ELevel Level{ ELevel::Off };
-		fmt::basic_string_view<char> Payload;
+		ELevel level{ ELevel::Off };
+		fmt::basic_string_view<char> payload;
 	};
 }

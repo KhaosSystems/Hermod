@@ -4,7 +4,7 @@
 namespace Hermod
 {
    Message::Message(ELevel level, fmt::basic_string_view<char> message)
-		: time(OS::now()), Level(level), Payload(message)
+		: time(OS::now()), level(level), payload(message)
 	{
 	}
 }

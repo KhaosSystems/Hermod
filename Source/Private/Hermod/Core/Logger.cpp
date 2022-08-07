@@ -25,6 +25,6 @@ namespace Hermod
     bool Logger::ShouldFlush(const Message& message)
 	{
 		auto flushLevel = m_FlushLevel.load(std::memory_order_relaxed);
-		return (message.Level >= flushLevel) && (message.Level != ELevel::Off);
+		return (message.level >= flushLevel) && (message.level != ELevel::Off);
 	}
 }
